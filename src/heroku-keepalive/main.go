@@ -5,23 +5,14 @@ import (
   "os"
   "syscall"
   "os/signal"
-  "time"
+  "runtime"
   "log"
-  "net/http"
-  "io/ioutil"
-  "encoding/json"
+  "fmt"
 
   "haraway/common/options"
+  "heroku-keepalive/pinger"
+  "heroku-keepalive/api"
 )
-
-
-type App struct {
-  Name   string `json:"name"`
-  WebUrl string `json:"web_url"`
-}
-
-
-var api_key string
 
 
 const desc = `
@@ -29,6 +20,7 @@ heroku-keepalive - Keep heroku websites alive.
 Usage: heroku-keepalive --api-key=HEROKU_KEY
 --
 !api-key=  --api-key,HEROKU_KEY   Heroku API key.
+port=      --port,PORT   Heroku API key.
 --
 --
 --
@@ -37,6 +29,8 @@ Usage: heroku-keepalive --api-key=HEROKU_KEY
 
 
 func main() {
+  runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+
   spec, err := options.New(desc)
   if err != nil { panic(err) }
 
@@ -50,70 +44,26 @@ func main() {
     spec.PrintUsageAndExit()
   }
 
-  api_key = opts.Get("api-key")
+  p := pinger.P{ ApiKey: opts.Get("api-key") }
 
   log.Printf("--- INSERT COIN ---")
   log.Printf("> Let the zombie apocalypse begin!")
-  ping_loop()
+
+  p.Run()
+  api.ListenAndServe(fmt.Sprintf(":%s", opts.Get("port")))
+
+  terminate := make(chan os.Signal)
+  signal.Notify(terminate, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+  <- terminate
+
+  p.Stop()
+
   log.Printf("> Aarrggg!!!")
   log.Printf("--- GAME OVER ---")
 }
 
 
-func ping_loop()(){
-  terminate := make(chan os.Signal)
-  signal.Notify(terminate, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
-
-  ticker := time.Tick(15 * time.Minute)
-
-  ping()
-
-  for {
-    select {
-    case <- ticker:
-      ping()
-    case <- terminate:
-      return
-    }
-  }
-}
-
-func ping()() {
-  log.Printf("> Patrolling the neighborhood for zombies...")
-
-  apps, err := load_apps()
-  if err != nil {
-    log.Printf("> Ouch, I can't see! (%s)", err)
-    return
-  }
-
-  done := make(chan bool, len(apps))
-
-  for _, app := range apps {
-    go ping_app(app, done)
-  }
-
-  for i := 0; i < len(apps); i++ {
-    <- done
-  }
-}
-
-
-func load_apps()(apps []*App, err error) {
-  resp, err := http.Get("https://:"+api_key+"@api.heroku.com/apps")
-  if err != nil { return }
-
-  defer resp.Body.Close()
-  body, err := ioutil.ReadAll(resp.Body)
-  if err != nil { return }
-
-  apps = make([]*App, 0, 500)
-  err = json.Unmarshal(body, &apps)
-  if err != nil { return }
-
-  return
-}
-
+/*
 func ping_app(app * App, done chan bool)() {
   var err error
 
@@ -141,3 +91,4 @@ func ping_app(app * App, done chan bool)() {
   done <- true
   return
 }
+*/

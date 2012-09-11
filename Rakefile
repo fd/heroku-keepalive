@@ -85,31 +85,6 @@ OS.each do |os|
 end
 
 
-desc "Setup the cross-compiler environment"
-task :setup do
-  ENV.delete('GOPATH')
-  ENV.delete('CGO_ENABLED')
-  GO_ROOT = `go env GOROOT`.strip
-  Dir.chdir(GO_ROOT + '/src') do
-
-    %w( 8 6 ).each do |c|
-      %w( a c g l ).each do |t|
-        sh "go tool dist install -v cmd/#{c}#{t}"
-      end
-    end
-
-    OS.each do |os|
-      ARCH.each do |arch|
-        ENV['GOARCH'] = arch
-        ENV['GOOS']   = os
-        sh "go tool dist install -v pkg/runtime"
-        sh "go install -v -a std || true"
-      end
-    end
-
-  end
-end
-
 desc "Remove all build targets"
 task :clean do
   rm_rf 'pkg'
