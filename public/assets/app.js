@@ -4,7 +4,7 @@ function AppViewModel() {
   self.apps = ko.observableArray([]);
 
   self.load_apps = function() {
-    $.getJSON("http://localhost:3000/apps", function(data){
+    $.getJSON("/apps", function(data){
       for (var i in data) {
         data[i].all_domains = [data[i].domain_name].concat(data[i].domains || []);
         data[i].all_domains.sort(function(l, r){
