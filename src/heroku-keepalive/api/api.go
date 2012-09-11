@@ -19,7 +19,9 @@ func ListenAndServe(addr string) {
 }
 
 func init() {
-  router.Get("/apps", http.HandlerFunc(get_apps))
+  router.Get("/assets/", http.FileServer(http.Dir("public")))
+  router.Get("/apps",     http.HandlerFunc(get_apps))
+  router.Get("/",         http.FileServer(http.Dir("public")))
 }
 
 func get_apps(w http.ResponseWriter, req * http.Request) {

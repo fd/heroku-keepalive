@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Mr. Keepalive (aka. The Grimm Reaper)</title>
+    <script src="/assets/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/assets/knockout-2.1.0.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/assets/app.js" type="text/javascript" charset="utf-8"></script>
+  </head>
+  <body>
+    <h1>Mr. Keepalive</h1>
+
+    <div id="apps" data-bind="foreach: apps">
+      <div class="app">
+        <h3 data-bind="text: name"></h3>
+        <table>
+
+          <tbody class="domains" data-bind="foreach: all_domains">
+            <tr>
+              <td data-bind="text: domain"></td>
+              <td data-bind="text: message"></td>
+              <td data-bind="text: load_time"></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </body>
+</html>
