@@ -13,7 +13,7 @@ import (
 	"github.com/fd/options"
 )
 
-const desc = `
+var spec = options.MustParse(`
 heroku-keepalive - Keep heroku websites alive.
 Usage: heroku-keepalive --api-key=HEROKU_KEY
 --
@@ -23,22 +23,12 @@ port=      --port,PORT   Heroku API key.
 --
 --
 
-`
+`)
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 
-	spec, err := options.New(desc)
-	if err != nil {
-		panic(err)
-	}
-
-	opts, err := spec.Parse(os.Args, os.Environ())
-
-	if err != nil {
-		spec.PrintUsageWithError(err)
-	}
-
+	opts := spec.MustInterpret(os.Args, os.Environ())
 	if len(opts.Args) != 0 {
 		spec.PrintUsageAndExit()
 	}
