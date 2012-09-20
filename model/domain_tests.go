@@ -13,12 +13,6 @@ var DNS_servers = map[string]string{
 	// Google
 	"ns1.google.com": "8.8.8.8:53",
 	"ns2.google.com": "8.8.4.4:53",
-
-	// Telenet
-	"ns1.telenet.be": "195.130.131.139:53",
-	"ns2.telenet.be": "195.130.130.139:53",
-	"ns3.telenet.be": "195.130.131.11:53",
-	"ns4.telenet.be": "195.130.130.11:53",
 }
 
 var dns_client = new(dns.Client)
