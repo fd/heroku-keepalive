@@ -1,19 +1,17 @@
 package main
 
-
 import (
-  "os"
-  "syscall"
-  "os/signal"
-  "runtime"
-  "log"
-  "fmt"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
 
-  "haraway/common/options"
-  "heroku-keepalive/pinger"
-  "heroku-keepalive/api"
+	"github.com/fd/heroku-keepalive/api"
+	"github.com/fd/heroku-keepalive/pinger"
+	"github.com/fd/options"
 )
-
 
 const desc = `
 heroku-keepalive - Keep heroku websites alive.
@@ -27,41 +25,41 @@ port=      --port,PORT   Heroku API key.
 
 `
 
-
 func main() {
-  runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 
-  spec, err := options.New(desc)
-  if err != nil { panic(err) }
+	spec, err := options.New(desc)
+	if err != nil {
+		panic(err)
+	}
 
-  opts, err := spec.Parse(os.Args, os.Environ())
+	opts, err := spec.Parse(os.Args, os.Environ())
 
-  if err != nil {
-    spec.PrintUsageWithError(err)
-  }
+	if err != nil {
+		spec.PrintUsageWithError(err)
+	}
 
-  if len(opts.Args) != 0 {
-    spec.PrintUsageAndExit()
-  }
+	if len(opts.Args) != 0 {
+		spec.PrintUsageAndExit()
+	}
 
-  p := pinger.P{ ApiKey: opts.Get("api-key") }
+	p := pinger.P{ApiKey: opts.Get("api-key")}
 
-  log.Printf("--- INSERT COIN ---")
-  log.Printf("> Let the zombie apocalypse begin!")
+	log.Printf("--- INSERT COIN ---")
+	log.Printf("> Let the zombie apocalypse begin!")
 
-  p.Run()
-  api.ListenAndServe(fmt.Sprintf(":%s", opts.Get("port")))
+	p.Run()
+	api.ListenAndServe(fmt.Sprintf(":%s", opts.Get("port")))
 
-  terminate := make(chan os.Signal)
-  signal.Notify(terminate, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
-  <- terminate
+	terminate := make(chan os.Signal)
+	signal.Notify(terminate, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+	<-terminate
 
-  p.Stop()
+	p.Stop()
 
-  log.Printf("> Aarrggg!!!")
-  log.Printf("--- GAME OVER ---")
+	log.Printf("> Aarrggg!!!")
+	log.Printf("--- GAME OVER ---")
 }
-
 
 /*
 func ping_app(app * App, done chan bool)() {

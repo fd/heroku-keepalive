@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	m "heroku-keepalive/model"
+	m "github.com/fd/heroku-keepalive/model"
 )
 
 type P struct {
