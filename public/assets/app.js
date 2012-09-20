@@ -19,7 +19,7 @@ function AppViewModel() {
     });
   }
 
-  setInterval(function(){ self.load_apps() }, 2000);
+  setInterval(function(){ self.load_apps() }, 15 * 1000);
 }
 
 $(function(){
